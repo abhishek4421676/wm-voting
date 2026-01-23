@@ -8,11 +8,16 @@ const createTransporter = () => {
   // 3. Use that app password instead of your regular password
   
   return nodemailer.createTransport({
-    service: "gmail", // or use 'smtp.gmail.com'
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL_USER, // Your Gmail address
       pass: process.env.EMAIL_PASSWORD, // Your Gmail App Password
     },
+    connectionTimeout: 60000, // 60 seconds
+    greetingTimeout: 30000, // 30 seconds
+    socketTimeout: 60000, // 60 seconds
   });
 };
 

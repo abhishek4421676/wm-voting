@@ -7,17 +7,10 @@ require("./config/passport");
 
 const app = express();
 
-// Trust proxy for secure cookies behind Render/Vercel
-if (process.env.NODE_ENV === "production") {
-  app.set("trust proxy", 1);
-}
-
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 

@@ -38,16 +38,13 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Store token in localStorage
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-        }
         router.push("/dashboard");
       } else {
         setError(data.message || "Authentication failed");

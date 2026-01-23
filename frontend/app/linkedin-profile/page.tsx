@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { authFetch, logout } from "../utils/auth";
 
 export default function LinkedInProfilePage() {
   const router = useRouter();
@@ -15,10 +14,12 @@ export default function LinkedInProfilePage() {
     // Check if user is authenticated and already has LinkedIn URL
     const checkAuth = async () => {
       try {
-        const response = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`);
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+          credentials: "include",
+        });
 
         if (!response.ok) {
-          logout();
+          router.push("/");
           return;
         }
 
@@ -33,7 +34,7 @@ export default function LinkedInProfilePage() {
         setCheckingAuth(false);
       } catch (error) {
         console.error("Auth check failed:", error);
-        logout();
+        router.push("/");
       }
     };
 
@@ -58,11 +59,12 @@ export default function LinkedInProfilePage() {
     setLoading(true);
 
     try {
-      const response = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/update-linkedin-url`, {
+      const response = await fetch("http://localhost:5000/api/auth/update-linkedin-url", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ linkedinProfileUrl: linkedinUrl }),
       });
 

@@ -186,10 +186,14 @@ router.get("/callback", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // In production, pass token via URL for cross-domain compatibility
-    // The frontend will store this token
+    res.cookie("token", jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
     console.log("LinkedIn authentication successful, redirecting to frontend");
-    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${jwtToken}`);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
   } catch (err) {
     console.error("LinkedIn authentication error:", err.response?.data || err.message);
     console.error("Full error stack:", err.stack);
