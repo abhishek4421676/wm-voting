@@ -93,14 +93,9 @@ router.post("/register", async (req, res) => {
     // Generate token
     const token = generateToken(user);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
-
     res.status(201).json({ 
       message: "Account created successfully",
+      token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
@@ -136,14 +131,9 @@ router.post("/login", async (req, res) => {
     // Generate token
     const token = generateToken(user);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
-
     res.json({ 
       message: "Login successful",
+      token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
@@ -169,13 +159,8 @@ router.get(
   (req, res) => {
     const token = generateToken(req.user);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
-
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    // Pass token via URL for cross-domain compatibility
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
   }
 );
 

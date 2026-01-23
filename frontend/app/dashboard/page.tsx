@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authFetch, logout } from "../utils/auth";
 
 interface Candidate {
   _id: string;
@@ -67,18 +68,10 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       const [teamsRes, votedUsersRes, votesRes, userRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/teams`, {
-          credentials: "include",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/results/voted-users`, {
-          credentials: "include",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/candidates`, {
-          credentials: "include",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-          credentials: "include",
-        }),
+        authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/teams`),
+        authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/results/voted-users`),
+        authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/candidates`),
+        authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`),
       ]);
 
       if (userRes.ok) {
@@ -92,7 +85,7 @@ export default function Dashboard() {
           return;
         }
       } else {
-        router.push("/");
+        logout();
         return;
       }
 
@@ -112,9 +105,8 @@ export default function Dashboard() {
         const candidates = await votesRes.json();
         
         // Fetch vote counts from the backend
-        const voteCountsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/results/vote-counts`,
-          { credentials: "include" }
+        const voteCountsRes = await authFetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/results/vote-counts`
         );
 
         if (voteCountsRes.ok) {
@@ -146,12 +138,11 @@ export default function Dashboard() {
 
     setVoting(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vote`, {
+      const response = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/vote`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({ candidateId }),
       });
 
@@ -180,17 +171,16 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
+      await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
         method: "POST",
-        credentials: "include",
       });
       
-      // Redirect to login page
-      router.push("/");
+      // Clear local storage and redirect
+      logout();
     } catch (error) {
       console.error("Error logging out:", error);
-      // Still redirect even if API call fails
-      router.push("/");
+      // Still logout even if API call fails
+      logout();
     }
   };
 
