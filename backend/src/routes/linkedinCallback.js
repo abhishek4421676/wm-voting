@@ -188,8 +188,8 @@ router.get("/callback", async (req, res) => {
 
     res.cookie("token", jwtToken, {
       httpOnly: true,
-      secure: false, // true in prod
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     console.log("LinkedIn authentication successful, redirecting to frontend");

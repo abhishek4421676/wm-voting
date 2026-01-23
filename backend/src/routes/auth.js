@@ -95,8 +95,8 @@ router.post("/register", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.status(201).json({ 
@@ -138,8 +138,8 @@ router.post("/login", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.json({ 
@@ -171,8 +171,8 @@ router.get(
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // set true in production (HTTPS)
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
