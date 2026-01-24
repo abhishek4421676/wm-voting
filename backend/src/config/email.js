@@ -1,34 +1,14 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-// Create transporter
-const createTransporter = () => {
-  // For Gmail, you'll need to:
-  // 1. Enable 2-factor authentication
-  // 2. Generate an "App Password" from Google Account settings
-  // 3. Use that app password instead of your regular password
-  
-  return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER, // Your Gmail address
-      pass: process.env.EMAIL_PASSWORD, // Your Gmail App Password
-    },
-    connectionTimeout: 60000, // 60 seconds
-    greetingTimeout: 30000, // 30 seconds
-    socketTimeout: 60000, // 60 seconds
-  });
-};
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Send password reset email
 const sendPasswordResetEmail = async (email, resetUrl, userName) => {
   try {
-    const transporter = createTransporter();
-
-    const mailOptions = {
-      from: `"Voting Platform" <${process.env.EMAIL_USER}>`,
-      to: email,
+    const { data, error } = await resend.emails.send({
+      from: "Voting Platform <onboarding@resend.dev>", // Use your verified domain in production
+      to: [email],
       subject: "Password Reset Request",
       html: `
         <!DOCTYPE html>
@@ -130,11 +110,15 @@ If you didn't request this password reset, please ignore this email. Your passwo
 This is an automated message, please do not reply to this email.
 © ${new Date().getFullYear()} Voting Platform. All rights reserved.
       `,
-    };
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Password reset email sent:", info.messageId);
-    return { success: true, messageId: info.messageId };
+    if (error) {
+      console.error("Resend error:", error);
+      throw new Error(error.message);
+    }
+
+    console.log("Password reset email sent:", data.id);
+    return { success: true, messageId: data.id };
   } catch (error) {
     console.error("Error sending password reset email:", error);
     throw error;
