@@ -48,9 +48,10 @@ router.post("/forgot-password", async (req, res) => {
     
     // Send email
     try {
-      console.log("Attempting to send email...");
-      console.log("EMAIL_USER:", process.env.EMAIL_USER);
-      console.log("EMAIL_PASSWORD configured:", !!process.env.EMAIL_PASSWORD);
+      console.log("=== SENDING EMAIL VIA RESEND ===");
+      console.log("To:", email);
+      console.log("RESEND_API_KEY configured:", !!process.env.RESEND_API_KEY);
+      console.log("RESEND_API_KEY starts with:", process.env.RESEND_API_KEY?.substring(0, 5));
       
       await sendPasswordResetEmail(email, resetUrl, user.name);
       console.log("Password reset email sent successfully to:", email);
@@ -59,8 +60,10 @@ router.post("/forgot-password", async (req, res) => {
         message: "Password reset instructions have been sent to your email"
       });
     } catch (emailError) {
-      console.error("Failed to send email - Full error:", emailError);
+      console.error("=== RESEND EMAIL FAILED ===");
+      console.error("Full error:", emailError);
       console.error("Error message:", emailError.message);
+      console.error("Error name:", emailError.name);
       console.error("Error stack:", emailError.stack);
       
       // Clear the reset token if email fails
