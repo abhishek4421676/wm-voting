@@ -10,12 +10,19 @@ export default function LinkedInProfilePage() {
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
+  // Helper function to get auth headers
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   useEffect(() => {
     // Check if user is authenticated and already has LinkedIn URL
     const checkAuth = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
           credentials: "include",
+          headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -59,10 +66,11 @@ export default function LinkedInProfilePage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/update-linkedin-url", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/update-linkedin-url`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...getAuthHeaders(),
         },
         credentials: "include",
         body: JSON.stringify({ linkedinProfileUrl: linkedinUrl }),

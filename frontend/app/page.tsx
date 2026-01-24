@@ -45,6 +45,10 @@ export default function Home() {
       const data = await response.json();
 
       if (response.ok) {
+        // Store token in localStorage for cross-origin requests
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
         router.push("/dashboard");
       } else {
         setError(data.message || "Authentication failed");

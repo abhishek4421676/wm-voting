@@ -60,24 +60,36 @@ export default function Dashboard() {
   const [hasVoted, setHasVoted] = useState(false);
   const router = useRouter();
 
+  // Helper function to get auth headers
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
+      const headers = getAuthHeaders();
+      
       const [teamsRes, votedUsersRes, votesRes, userRes] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/teams`, {
           credentials: "include",
+          headers,
         }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/results/voted-users`, {
           credentials: "include",
+          headers,
         }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/candidates`, {
           credentials: "include",
+          headers,
         }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
           credentials: "include",
+          headers,
         }),
       ]);
 
@@ -114,7 +126,7 @@ export default function Dashboard() {
         // Fetch vote counts from the backend
         const voteCountsRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/results/vote-counts`,
-          { credentials: "include" }
+          { credentials: "include", headers }
         );
 
         if (voteCountsRes.ok) {
@@ -150,6 +162,7 @@ export default function Dashboard() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...getAuthHeaders(),
         },
         credentials: "include",
         body: JSON.stringify({ candidateId }),
@@ -183,7 +196,11 @@ export default function Dashboard() {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
+      
+      // Clear token from localStorage
+      localStorage.removeItem("token");
       
       // Redirect to login page
       router.push("/");

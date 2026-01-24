@@ -101,6 +101,7 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({ 
       message: "Account created successfully",
+      token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
@@ -144,6 +145,7 @@ router.post("/login", async (req, res) => {
 
     res.json({ 
       message: "Login successful",
+      token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
@@ -175,7 +177,8 @@ router.get(
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    // Redirect with token in URL for cross-origin support
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
   }
 );
 
