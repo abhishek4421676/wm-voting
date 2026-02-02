@@ -1,14 +1,29 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create Nodemailer transporter using Gmail service
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+// Verify transporter connection
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP connection error:", error);
+  } else {
+    console.log("SMTP server is ready to send emails");
+  }
+});
 
 // Send password reset email
 const sendPasswordResetEmail = async (email, resetUrl, userName) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: "Voting Platform <onboarding@resend.dev>", // Use your verified domain in production
-      to: [email],
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: email,
       subject: "Password Reset Request",
       html: `
         <!DOCTYPE html>
@@ -110,15 +125,12 @@ If you didn't request this password reset, please ignore this email. Your passwo
 This is an automated message, please do not reply to this email.
 © ${new Date().getFullYear()} Voting Platform. All rights reserved.
       `,
-    });
+    };
 
-    if (error) {
-      console.error("Resend error:", error);
-      throw new Error(error.message);
-    }
+    const info = await transporter.sendMail(mailOptions);
 
-    console.log("Password reset email sent:", data.id);
-    return { success: true, messageId: data.id };
+    console.log("Password reset email sent:", info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Error sending password reset email:", error);
     throw error;
