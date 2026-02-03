@@ -2,10 +2,6 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
-    },
-    {
       "src": "backend/server.js",
       "use": "@vercel/node"
     }
@@ -13,26 +9,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "methods": ["OPTIONS"],
-      "dest": "backend/server.js",
-      "headers": {
-        "Access-Control-Allow-Origin": "https://wm-voting-1.onrender.com",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
-        "Access-Control-Allow-Credentials": "true"
-      }
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js",
-      "headers": {
-        "Access-Control-Allow-Origin": "https://wm-voting-1.onrender.com",
-        "Access-Control-Allow-Credentials": "true"
-      }
+      "dest": "backend/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "backend/server.js"
     }
   ]
 }
